@@ -34,14 +34,16 @@ class Collector(threading.Thread):
 
     def download_csv_file(self, url):
         with requests.Session() as session:
-            session.headers.update({'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                                    'Accept-Encoding': 'gzip, deflate',
-                                    'Accept-Language': 'pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3',
+            session.headers.update({
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'de-AT,en-US;q=0.7,en;q=0.3',
                                     'Connection': 'keep-alive',
-                                    # 'Cookie': 'X-Mapping-jfgkgcmo=C2ECD7B19B260AB2D849DAB632033510; laravel_session=eyJpdiI6ImZFN2lLOEFNVmhndDFrUDc5QmVrdXc9PSIsInZhbHVlIjoiU21zYTFpQUljaTF1cmJnN1kzVm5mbVFJZldzTzQ5ZGZIWWNpZnJKRU1ubkZlU1FBOTRxSGpiaXljMGVcL3NObGF4Zm5VUjllQ0Yxb0R2RnJveXVDcktBPT0iLCJtYWMiOiI4MjY5MTdmMGMzNWIwMDU3OGYyY2Q0MjZlZmEzNmM0NjNlOGU1MTk0NmNjODU0M2I3MTc1NjEwNTJiZTEzOTQyIn0%3D; _ga=GA1.2.852419413.1501944945; _gid=GA1.2.288555599.1501944945; XSRF-TOKEN=eyJpdiI6IjNCY2tEakUwb28ycFVCUDFrYWtxTGc9PSIsInZhbHVlIjoiR05vS0lhalQ1WEtiejBGd1Z2cnZaREdlczlcLzNNdU1UdjI2b1FReGN6cFZEV1pnbmVlVHRURU9JVm40MDlmcDRpVTFmaGtQbG41UElcL0NJdjJueVlwdz09IiwibWFjIjoiNTcyOTI2NDczZjhiNjRkYTYxYzM0N2Y2ZGVmMWU4YjI0NTI3MDk4OThiNTkwNThiNDc0ODRiMTU4MjNjOTRhNyJ9; 9725eef18a75e1784d10b0949938c4d45f081300=eyJpdiI6InBicWZMQlRtZUoycUlKd0ZSQ05SM3c9PSIsInZhbHVlIjoib2o1VFJGSTdhakhtVDhyXC9xWVVuN0RobzhNOVBVT2crRmg0NFNrNGhTcEI4XC9qSEpuYUliVGdOZXZMU3JxRWxoS1d3UmpBRkRhR0EwMHRwSDE5MVA3U3dNbEZXSER6RHErTmlcL2tvbFZHNTN5XC9tQjBSb0JuQnFMdUJkZzNDTlZLeUdqeDRYaGRJXC92VG5qVTVyWkgxSGlweWlIM1JNbzBSSDZwQ0xXS1ZuUEZJTElpa3pPYnNOS1JSYXFCUXQ1MDduZVl5VHZhczJLaUNIVzVWYnMyWlwvQW1WdUJ3MWU3ek1pOU5ocEFYYjY4eUlabTNUWFUyWnRaVTFaZ0RWN0lYRm0zb0V4K2R4YklcLzdPdUY3eFg4elNKTGNSVDd5Skhicm1JQUN3NCt1MmQwVlhcL0xuOFVcL1lpMHk3bG1iTmFzWVN4dlU1Rk54dDJqOVdkSkozcmt1WU1CN3NjQm9KVnVLUmQxS1cxaGxtenhtNlljSmFaclNoeHROU1hWaCtNSGViZFRXcTJMallcL3ljNnpmNlJwRUJTWEE9PSIsIm1hYyI6Ijk1YWQ5NmVlYWI4MDA3ZTMwZTYyMjc3NjY5NDNmMzI5NjE0YmE5NzU2NDE0MzRjNDNmNjFjN2NhNmYwNzYzYWIifQ%3D%3D; _gat=1',
+                # 'Cookie': '__cfduid=d4176377ae4eee1c229ee921ae76268891572271290; X-Mapping-kjhgfmmm=9343FCBF8CF03218178FBD7548D564F1; XSRF-TOKEN=eyJpdiI6IjhkT3dpbEVpbG52cGIwYVMrS0hHdXc9PSIsInZhbHVlIjoiN0VDZ2F1V3JHYnBMYWROK1FUSWRtZUZSelhmaUJCNkNkb3U0UllMeUVNOTkwQVQ1MlBGT3VKMlwvTzBnQ1dOc2pMVUZLWmR0MEwzMG1KR0NMaElrSFF3PT0iLCJtYWMiOiJkZmY5ZThjNzJhYTU3MDNmMmQyMWYyM2U4NTg1OGY0MmE4OWRiYjU1YzBmZGVmODM5N2U4MmMyMTBlMWYxZGRjIn0%3D; laravel_session=eyJpdiI6IlhGSHZoUFlWbE5aV2UwbWJoQ0NEMUE9PSIsInZhbHVlIjoiZHo2RlFydDRKQnBIZ1wvUFpyV1ZLelpaMGVadHNRdUhmQmJzS2JZa2ZaNnhpaEJZWlNmckR6eFdFbjBrRTR2dGtkY3NKNnRkSGp6ak1GdmEyNFJqcVZBPT0iLCJtYWMiOiJhNjc0NDYxNzIyNjZjYzRkN2IxYWJkNDg2YzAyOTQ1MzI5OTM4OTEyMzIzODY0ZjkzYjdkYWJlMjA1MWJmMDhjIn0%3D; d53e837420ae192d2eacc8608e11e0cc0c2087ed=eyJpdiI6ImpMaTQ0b1RKdWY0TzRwMExqS3JYcUE9PSIsInZhbHVlIjoiT1dvNCtUZ3Fqa2I4ZnZhSXBFMDVwV1Z6N1pQdXo3ZVphQUcwTHRYMVwvMTZ0WHNYRVwvaUNcL29qWXFaWUlXVkJlRm8rMWhheXNTRWU1elpwcEJUVzJ5eFptXC9NMUVCUlVOOFpvQ3lOeUg5OWJnVVwveXB0c1J0cnN0dUF3cDFJdGdwTHZtR0V1MkZ6TFZwcWtWRGdtSVdMSXkrOEJYQXdnTlFvMkgyRmd2QnZVTFVHWitjNlZ2TGRpdjhMSXBwZ09PUEdrMllxTVVOZk9zV1dLUHVuVXVHQXVaU3UxK2RQOXpkMjAwRzdoeE9acFQxT0Q3SUx3TThCVkgrdXlzU3dIcTN1RkZ2cVYwMW9HUTg4S1dlNFArS21wbTVMaVZaTFRYK1NiTXd1YkVscW0wSG9mNFNUUXJ2dUI2S0hPQ1dBdnVSTVgreDY4V0N3XC9PcG1yU09ZMmZJV2pTVXVKZFpWNWFUWGJVN1JhTWwrSVRKSlVPbnc0M3c2M3R5eW5od05xVHh6cEs3Uys0WFdpWEZPcFwvRW11OHVXaWU5YTFXbEpUSUVzcmtFcEw0dTkxWXJoTVFVbGJxMVN3RGkwdkdURGZ6bGtoaEQ0VGUreUEwKzBDUEh6dlZXVGcwZ0JZTzZVK2M4djFZbkFKN2gzZUI0PSIsIm1hYyI6IjYxNzRhNjIxZjQ5ZjExNzIxMjYzNGMyYTcwZjM5ZmJmN2ZiNzVkNDM4Mjc5OGYyN2E0YzI2NzQ3NmIzMTBlNGQifQ%3D%3D',
                                     'Host': 'spotifycharts.com',
                                     'Referer': 'https://spotifycharts.com/regional/ad/weekly/latest',
-                                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'})
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
+                })
             retry = 3
             while True:
                 download = session.get(url)
