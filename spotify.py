@@ -29,6 +29,7 @@ class Collector(threading.Thread):
 
     def is_csv_ok(self, download_content):
         csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
+        note = csv_reader.next()
         headers = csv_reader.next()
         return set(headers) == set(self.base_headers)
 
@@ -57,8 +58,8 @@ class Collector(threading.Thread):
 
     def extract_csv_rows(self, csv_file):
         csv_reader = csv.reader(csv_file.splitlines(), delimiter=',')
-        # Skip headers
-        csv_reader.next()
+        csv_reader.next() # skip note
+        csv_reader.next() # skip header
         for row in csv_reader:
             yield row
 
@@ -97,7 +98,7 @@ class Collector(threading.Thread):
                 if filename.endswith(".csv"):
                     with open(os.path.join(DATA_DIRECTORY, filename)) as infile:
                         csv_reader = csv.reader(infile)
-                        csv_reader.next()
+                        csv_reader.next() # skip header
                         for row in csv_reader:
                             csv_writer.writerow(row)
 
