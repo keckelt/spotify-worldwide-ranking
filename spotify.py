@@ -28,10 +28,14 @@ class Collector(threading.Thread):
             current_date += one_day
 
     def is_csv_ok(self, download_content):
+        try:
         csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
         note = csv_reader.next()
         headers = csv_reader.next()
         return set(headers) == set(self.base_headers)
+        except:
+            #print "csv invalid - missing data?"
+            return False
 
     def download_csv_file(self, url):
         with requests.Session() as session:
@@ -45,15 +49,11 @@ class Collector(threading.Thread):
                 'Referer': 'https://spotifycharts.com/regional/ad/weekly/latest',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
                 })
-            retry = 3
-            while True:
+
                 download = session.get(url)
                 if self.is_csv_ok(download.content):
                     return download.content
-                print "Retrying for '%s'" % url
-                retry -= 1
-                if retry <= 0:
-                    print "Retry failed for '%s'" % url
+            else:
                     return None
 
     def extract_csv_rows(self, csv_file):
