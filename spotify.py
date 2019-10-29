@@ -72,7 +72,7 @@ class Collector(threading.Thread):
         file_path = os.path.join(DATA_DIRECTORY, "%s.csv" % self.region)
         if os.path.exists(file_path):
             print "File '%s' already exists, skipping" % file_path
-
+        else:
         with open(file_path, 'wb', 1) as out_csv_file:
             writer = csv.writer(out_csv_file)
             writer.writerow(headers)
