@@ -20,12 +20,16 @@ class Collector(threading.Thread):
         self.end_date = end_date
         self.base_headers = ['Position', 'Track Name', 'Artist', 'Streams', 'URL']
 
-    def date_range(self):
+    def next_date(self):
         one_day = timedelta(days=1)
         current_date = self.start_date
         while current_date <= self.end_date:
             yield current_date
             current_date += one_day
+
+    def date_range(self):
+        total = (self.end_date - self.start_date).days
+        return total
 
     def is_csv_ok(self, download_content):
         try:
@@ -70,6 +74,7 @@ class Collector(threading.Thread):
         headers = self.base_headers + ["Date", "Region"]
 
         file_path = os.path.join(DATA_DIRECTORY, "%s.csv" % self.region)
+
         if os.path.exists(file_path):
             print "File '%s' already exists, skipping" % file_path
         else:
@@ -77,7 +82,7 @@ class Collector(threading.Thread):
                 writer = csv.writer(out_csv_file)
                 writer.writerow(headers)
 
-                for current_date in tqdm(self.date_range(), desc="Collecting from '%s'" % self.region):
+                for current_date in tqdm(self.next_date(), total=self.date_range(), desc="Collecting from '%s'" % self.region):
                     url = "https://spotifycharts.com/regional/%s/daily/%s/download" % (self.region, current_date)
                     csv_file = self.download_csv_file(url)
                     if csv_file is None:
