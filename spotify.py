@@ -33,10 +33,10 @@ class Collector(threading.Thread):
 
     def is_csv_ok(self, download_content):
         try:
-        csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
-        note = csv_reader.next()
-        headers = csv_reader.next()
-        return set(headers) == set(self.base_headers)
+            csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
+            note = csv_reader.next()
+            headers = csv_reader.next()
+            return set(headers) == set(self.base_headers)
         except:
             #print "csv invalid - missing data?"
             return False
@@ -54,11 +54,11 @@ class Collector(threading.Thread):
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0'
                 })
 
-                download = session.get(url)
-                if self.is_csv_ok(download.content):
-                    return download.content
+            download = session.get(url)
+            if self.is_csv_ok(download.content):
+                return download.content
             else:
-                    return None
+                return None
 
     def extract_csv_rows(self, csv_file):
         csv_reader = csv.reader(csv_file.splitlines(), delimiter=',')
@@ -98,7 +98,7 @@ class Collector(threading.Thread):
 
         with open(final_filename, 'w') as outfile:
             csv_writer = csv.writer(outfile)
-            csv_writer.writerow(['Position', 'Track Name', 'Artist', 'Streams', 'URL'])
+            csv_writer.writerow(['Position', 'Track Name', 'Artist', 'Streams', 'URL', 'Date', 'Country'])
             for filename in tqdm(os.listdir(DATA_DIRECTORY), desc="Generating final file: %s" % final_filename):
                 if filename.endswith(".csv"):
                     with open(os.path.join(DATA_DIRECTORY, filename)) as infile:
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                "hu", "ie", "is", "it", "lt", "lu", "lv",
                "mc", "mt", "nl", "no",
                "pl", "pt", "ro", "se", "sk", "tr"]
-    # regions = ["de", "fr", "gb", "es", "it"] #subset
+    regions = ["lu", "be", "nl", "de", "dk", "pl", "cz", "sk", "hu", "at", "ch"] #subset
 
     for region in regions:
         collector = Collector(region, start_date, end_date)
