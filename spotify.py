@@ -120,7 +120,7 @@ if __name__ == "__main__":
     #            "hu", "ie", "is", "it", "lt", "lu", "lv",
     #            "mc", "mt", "nl", "no",
     #            "pl", "pt", "ro", "se", "sk", "tr"]
-    regions = ["lu", "be", "nl", "de", "dk", "pl", "cz", "sk", "hu", "at", "ch"] #subset
+    regions = ["at", "be", "ch", "cz", "de", "dk", "hu", "lu", "nl", "pl", "sk"] #subset
 
     for region in regions:
         collector = Collector(region, start_date, end_date)
