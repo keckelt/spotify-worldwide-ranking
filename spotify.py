@@ -33,12 +33,13 @@ class Collector(threading.Thread):
 
     def is_csv_ok(self, download_content):
         try:
+            # print('%s' % download_content)
             csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
-            note = csv_reader.next()
-            headers = csv_reader.next()
+            note = next(csv_reader) # ,,,"Note that these figures are generated using a formula that protects against any artificial inflation of chart positions.",
+            headers = next(csv_reader)
             return set(headers) == set(self.base_headers)
         except:
-            # print('csv invalid - missing data?')
+            print('csv invalid - missing data?')
             return False
 
     def download_csv_file(self, url):
@@ -55,15 +56,15 @@ class Collector(threading.Thread):
                 })
 
             download = session.get(url)
-            if self.is_csv_ok(download.content):
-                return download.content
+            if self.is_csv_ok(download.text):
+                return download.text
             else:
                 return None
 
     def extract_csv_rows(self, csv_file):
         csv_reader = csv.reader(csv_file.splitlines(), delimiter=',')
-        csv_reader.next() # skip note
-        csv_reader.next() # skip header
+        next(csv_reader) # skip note
+        next(csv_reader) # skip header
         for row in csv_reader:
             yield row
 
@@ -103,13 +104,13 @@ class Collector(threading.Thread):
                 if filename.endswith(".csv"):
                     with open(os.path.join(DATA_DIRECTORY, filename)) as infile:
                         csv_reader = csv.reader(infile)
-                        csv_reader.next() # skip header
+                        next(csv_reader) # skip header
                         for row in csv_reader:
                             csv_writer.writerow(row)
 
 
 if __name__ == "__main__":
-    start_date = date(2020, 1, 1)
+    start_date = date(2020, 9, 19)
 
     one_day = timedelta(days=1)
     end_date = datetime.now().date() - (one_day) # Skip today
