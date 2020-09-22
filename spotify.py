@@ -38,7 +38,7 @@ class Collector(threading.Thread):
             headers = csv_reader.next()
             return set(headers) == set(self.base_headers)
         except:
-            #print "csv invalid - missing data?"
+            # print('csv invalid - missing data?')
             return False
 
     def download_csv_file(self, url):
@@ -76,9 +76,9 @@ class Collector(threading.Thread):
         file_path = os.path.join(DATA_DIRECTORY, "%s.csv" % self.region)
 
         if os.path.exists(file_path):
-            print "File '%s' already exists, skipping" % file_path
+            print("File '%s' already exists, skipping" % file_path)
         else:
-            with open(file_path, 'wb', 1) as out_csv_file:
+            with open(file_path, 'w', 1) as out_csv_file:
                 writer = csv.writer(out_csv_file)
                 writer.writerow(headers)
 
@@ -94,7 +94,7 @@ class Collector(threading.Thread):
 
     @staticmethod
     def generate_final_file():
-        final_filename = 'data.csv'
+        final_filename = 'merged_data.csv'
 
         with open(final_filename, 'w') as outfile:
             csv_writer = csv.writer(outfile)
@@ -109,20 +109,22 @@ class Collector(threading.Thread):
 
 
 if __name__ == "__main__":
+    start_date = date(2020, 1, 1)
+
     one_day = timedelta(days=1)
-    start_date = date(2019, 1, 1)
     end_date = datetime.now().date() - (one_day) # Skip today
 
-    regions = ["gb", "ad", "at", "be", "bg",
-               "ch", "cy", "cz", "de",
-               "dk", "ee", "es", "fi", "fr", "gr",
-               "hu", "ie", "is", "it", "lt", "lu", "lv",
-               "mc", "mt", "nl", "no",
-               "pl", "pt", "ro", "se", "sk", "tr"]
+    # regions = ["gb", "ad", "at", "be", "bg",
+    #            "ch", "cy", "cz", "de",
+    #            "dk", "ee", "es", "fi", "fr", "gr",
+    #            "hu", "ie", "is", "it", "lt", "lu", "lv",
+    #            "mc", "mt", "nl", "no",
+    #            "pl", "pt", "ro", "se", "sk", "tr"]
     regions = ["lu", "be", "nl", "de", "dk", "pl", "cz", "sk", "hu", "at", "ch"] #subset
 
     for region in regions:
         collector = Collector(region, start_date, end_date)
         collector.start()
+
     Collector.generate_final_file()
-    # Run script twice, first time it will download the countries, second time it will update the merged data.csv file
+    # Run script twice, first time it will download the countries, second time it will update the merged_data.csv file
