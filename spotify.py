@@ -33,12 +33,13 @@ class Collector(threading.Thread):
 
     def is_csv_ok(self, download_content):
         try:
+            # print('%s' % download_content)
             csv_reader = csv.reader(download_content.splitlines(), delimiter=',')
-            note = csv_reader.next()
-            headers = csv_reader.next()
+            note = next(csv_reader) # ,,,"Note that these figures are generated using a formula that protects against any artificial inflation of chart positions.",
+            headers = next(csv_reader)
             return set(headers) == set(self.base_headers)
         except:
-            #print "csv invalid - missing data?"
+            print('csv invalid - missing data?')
             return False
 
     def download_csv_file(self, url):
@@ -55,15 +56,15 @@ class Collector(threading.Thread):
                 })
 
             download = session.get(url)
-            if self.is_csv_ok(download.content):
-                return download.content
+            if self.is_csv_ok(download.text):
+                return download.text
             else:
                 return None
 
     def extract_csv_rows(self, csv_file):
         csv_reader = csv.reader(csv_file.splitlines(), delimiter=',')
-        csv_reader.next() # skip note
-        csv_reader.next() # skip header
+        next(csv_reader) # skip note
+        next(csv_reader) # skip header
         for row in csv_reader:
             yield row
 
@@ -76,9 +77,9 @@ class Collector(threading.Thread):
         file_path = os.path.join(DATA_DIRECTORY, "%s.csv" % self.region)
 
         if os.path.exists(file_path):
-            print "File '%s' already exists, skipping" % file_path
+            print("File '%s' already exists, skipping" % file_path)
         else:
-            with open(file_path, 'wb', 1) as out_csv_file:
+            with open(file_path, 'w', 1) as out_csv_file:
                 writer = csv.writer(out_csv_file)
                 writer.writerow(headers)
 
@@ -94,7 +95,7 @@ class Collector(threading.Thread):
 
     @staticmethod
     def generate_final_file():
-        final_filename = 'data.csv'
+        final_filename = 'merged_data.csv'
 
         with open(final_filename, 'w') as outfile:
             csv_writer = csv.writer(outfile)
@@ -103,26 +104,28 @@ class Collector(threading.Thread):
                 if filename.endswith(".csv"):
                     with open(os.path.join(DATA_DIRECTORY, filename)) as infile:
                         csv_reader = csv.reader(infile)
-                        csv_reader.next() # skip header
+                        next(csv_reader) # skip header
                         for row in csv_reader:
                             csv_writer.writerow(row)
 
 
 if __name__ == "__main__":
+    start_date = date(2020, 9, 19)
+
     one_day = timedelta(days=1)
-    start_date = date(2019, 1, 1)
     end_date = datetime.now().date() - (one_day) # Skip today
 
-    regions = ["gb", "ad", "at", "be", "bg",
-               "ch", "cy", "cz", "de",
-               "dk", "ee", "es", "fi", "fr", "gr",
-               "hu", "ie", "is", "it", "lt", "lu", "lv",
-               "mc", "mt", "nl", "no",
-               "pl", "pt", "ro", "se", "sk", "tr"]
-    regions = ["lu", "be", "nl", "de", "dk", "pl", "cz", "sk", "hu", "at", "ch"] #subset
+    # regions = ["gb", "ad", "at", "be", "bg",
+    #            "ch", "cy", "cz", "de",
+    #            "dk", "ee", "es", "fi", "fr", "gr",
+    #            "hu", "ie", "is", "it", "lt", "lu", "lv",
+    #            "mc", "mt", "nl", "no",
+    #            "pl", "pt", "ro", "se", "sk", "tr"]
+    regions = ["at", "be", "ch", "cz", "de", "dk", "hu", "lu", "nl", "pl", "sk"] #subset
 
     for region in regions:
         collector = Collector(region, start_date, end_date)
         collector.start()
+
     Collector.generate_final_file()
-    # Run script twice, first time it will download the countries, second time it will update the merged data.csv file
+    # Run script twice, first time it will download the countries, second time it will update the merged_data.csv file
