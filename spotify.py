@@ -110,10 +110,11 @@ class Collector(threading.Thread):
 
 
 if __name__ == "__main__":
-    start_date = date(2020, 9, 19)
+    start_date = date(2020, 1, 1)
 
     one_day = timedelta(days=1)
-    end_date = datetime.now().date() - (one_day) # Skip today
+    #end_date = datetime.now().date() - (one_day) # Skip today
+    end_date = date(2020, 12, 31)
 
     # regions = ["gb", "ad", "at", "be", "bg",
     #            "ch", "cy", "cz", "de",
